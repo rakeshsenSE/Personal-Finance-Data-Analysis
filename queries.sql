@@ -87,4 +87,21 @@ ON t.category_id = c.category_id;
 	GROUP BY category
 	ORDER BY total_expenses DESC
 	LIMIT 10;
+    
+-- Q8. Which expense category has the highest total spending?
+-- ANSWER:
+	SELECT 
+		c.category_name AS category , sum(ABS(t.amount)) AS total_expense
+        FROM t.transations t
+        JOIN categories c 
+        ON c.category_id = t.category_id
+        WHERE c.transaction_type = 'Expense'
+        GROUP BY category
+        ORDER BY total_expense DESC
+        LIMIT 10;
+		
+        
+-- Q9. How does actual spending compare to the budgeted amount for each category?
+-- ANSWER:
+	SELECT
 		
