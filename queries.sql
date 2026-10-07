@@ -92,7 +92,7 @@ ON t.category_id = c.category_id;
 -- ANSWER:
 	SELECT 
 		c.category_name AS category , sum(ABS(t.amount)) AS total_expense
-        FROM t.transations t
+        FROM t.transactions t
         JOIN categories c 
         ON c.category_id = t.category_id
         WHERE c.transaction_type = 'Expense'
@@ -103,5 +103,28 @@ ON t.category_id = c.category_id;
         
 -- Q9. How does actual spending compare to the budgeted amount for each category?
 -- ANSWER:
-	SELECT
-		
+	WITH monthly AS (
+		SELECT c.category_name , date_format(t.transaction_date , '%Y - %m') AS month,
+			SUM(ABS(t.amount)) AS spend
+		FROM transactions t
+        JOIN categories c 
+        ON c.category_id = t.category_id
+		WHERE c.transaction_type = 'Expense'
+        GROUP BY c.category_name , month),
+        budget AS (
+			SELECT category_name , ROUND(AVG(spend) , 2) AS budget_amount
+            FROM monthly 
+            GROUP BY category_name),
+		lestest_month AS (
+			SELECT MAX(month) AS m FROM monthly),
+		actual AS(
+			SELECT category_name , ROUND(spend, 2) AS actual_amount FROM monthly , lestest_month
+		WHERE monthly.month = lestest_month.m)
+            
+		SELECT b.category_name AS category , b.budget_amount,
+		COALESCE(a.actual_amount,0) AS actual_amount,
+		(COALESCE(a.actual_amount,0) - b.budget_amount) AS variance 
+		FROM budget b
+		LEFT JOIN actual a ON b.category_name = a.a.category_name
+		ORDER BY variance DESC
+		LIMIT 10;
