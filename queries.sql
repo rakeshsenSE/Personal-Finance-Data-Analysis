@@ -128,3 +128,12 @@ ON t.category_id = c.category_id;
 		LEFT JOIN actual a ON b.category_name = a.a.category_name
 		ORDER BY variance DESC
 		LIMIT 10;
+        
+-- Q10. What is the average amount spent per day?
+-- ANSWER:
+	SELECT ROUND(SUM(ABS(t.amount)) * 1.0 / COUNT(DISTINCT t.transaction_date) , 2) 
+		AS daily_spending
+	FROM transactions t
+    JOIN categories c 
+    ON t.category_id = c.category_id 
+    WHERE transaction_type = 'Expense';
