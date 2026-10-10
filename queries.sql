@@ -137,3 +137,25 @@ ON t.category_id = c.category_id;
     JOIN categories c 
     ON t.category_id = c.category_id 
     WHERE transaction_type = 'Expense';
+    
+-- Q11.What is the trend of total spending month by month?
+-- ANSWER:
+	SELECT date_format(t.transaction_date , '%y-%m') AS month,
+			SUM(ABS(t.amount)) AS total_spent
+	FROM transactions t
+    JOIN categories c 
+    ON t.category_id = c.category_id 
+    WHERE transaction_type = 'Expense'
+    GROUP BY month 
+    ORDER BY month
+    LIMIT 12;
+    
+-- Q12. What is the running account balance after each transaction?
+-- Q13. Which expenses are recurring every month (subscriptions, bills, etc.)?
+-- 14. Is spending higher on weekends or on weekdays?
+-- 15. Which are the top 10 largest transactions overall?
+-- 16. What is the current balance of each account?
+-- 17. How much is income growing or shrinking month over month?
+-- 18. How much are expenses growing or shrinking month over month?
+-- 19. What percentage does each category contribute to total spending?
+-- 20. What does the overall financial health dashboard look like (summary of key numbers)?
