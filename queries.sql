@@ -151,6 +151,19 @@ ON t.category_id = c.category_id;
     LIMIT 12;
     
 -- Q12. What is the running account balance after each transaction?
+-- ANSWER:
+	WITH top_account AS ( 
+		SELECT account_id FROM transactions
+		GROUP BY account_id ORDER BY COUNT(*) DESC LIMIT 1 )
+   SELECT t.transaction_id , t.transaction_date , t.amount , 
+    (a.opening_balance + SUM(t.amount) OVER( 
+     ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)) AS running_balance
+     FROM transactions t 
+     JOIN accounts a 
+     ON t.account_id  = a.account_id
+     WHERE t.account_id = (SELECT account_id FROM top_account)
+     ORDER BY t.transaction_id , transaction_date LIMIT 10;
+     
 -- Q13. Which expenses are recurring every month (subscriptions, bills, etc.)?
 -- 14. Is spending higher on weekends or on weekdays?
 -- 15. Which are the top 10 largest transactions overall?
