@@ -165,10 +165,43 @@ ON t.category_id = c.category_id;
      ORDER BY t.transaction_id , transaction_date LIMIT 10;
      
 -- Q13. Which expenses are recurring every month (subscriptions, bills, etc.)?
--- 14. Is spending higher on weekends or on weekdays?
+-- ANSWER:
+	SELECT 
+		c.category_name AS category,
+		COUNT(distinct(date_format(t.transaction_date,'%Y-%m') )) AS month,
+        SUM(ABS(t.amount)) AS total_amount ,
+        AVG(ABS(t.amount)) as avg_amount
+	FROM transactions t 
+	JOIN categories c
+	ON c.category_id  = c.category_id
+	WHERE c.transaction_type = 'Expense'
+    GROUP BY c.category_name
+    HAVING month >= 6
+	ORDER BY month DESC , total_amount DESC LIMIT 10;
+     
+-- Q14. Is spending higher on weekends or on weekdays?
+-- ANSWER:
+	SELECT 
+		CASE WHEN dayofweek(t.transaction_date) IN (1,7) THEN 'weekend'
+        ELSE 'weekday' END AS date_type,
+        COUNT(*) AS num_transaction,
+        SUM(ABS(t.amount)) AS total_spent,
+        ROUND(AVG(ABS(t.amount)) , 2) AS avg_spent
+	FROM transactions t
+    JOIN categories c 
+    ON c.category_id = t.category_id
+    WHERE c.transaction_type = 'Expense'
+    GROUP BY date_type
+    ORDER BY total_spent DESC 
+    LIMIT 10;
 -- 15. Which are the top 10 largest transactions overall?
--- 16. What is the current balance of each account?
--- 17. How much is income growing or shrinking month over month?
--- 18. How much are expenses growing or shrinking month over month?
--- 19. What percentage does each category contribute to total spending?
--- 20. What does the overall financial health dashboard look like (summary of key numbers)?
+-- ANSWER:
+	SELECT 
+		t.transaction_id , t.transaction_date , a.account_name , c.category_name, ABS(t.amount) AS amount
+	FROM transactions t
+    JOIN accounts a 
+    ON t.account_id = a.account_id
+    JOIN categories c 
+    ON c.category_id = t.category_id
+    ORDER BY amount DESC
+    LIMIT 10;
